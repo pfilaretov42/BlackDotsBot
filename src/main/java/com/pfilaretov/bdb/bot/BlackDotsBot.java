@@ -14,8 +14,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 /**
  * The main Bot class
  */
-@Component
+//@Component
 public class BlackDotsBot extends TelegramLongPollingBot {
+
+    private static final String BOT_USER_NAME = "BlackDotsBot";
 
     @Value("${BLACK_DOTS_BOT_TOKEN}")
     private String token;
@@ -59,7 +61,7 @@ public class BlackDotsBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "BlackDotsBot";
+        return BOT_USER_NAME;
     }
 
     @Override

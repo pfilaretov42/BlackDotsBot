@@ -7,6 +7,8 @@ import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.abilitybots.api.bot.AbilityBot;
@@ -14,6 +16,7 @@ import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
 import org.telegram.abilitybots.api.objects.Reply;
 import org.telegram.abilitybots.api.objects.ReplyFlow;
+import org.telegram.abilitybots.api.util.AbilityExtension;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -22,6 +25,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  */
 @Component
 public class AbilityExamplesBot extends AbilityBot {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbilityExamplesBot.class);
 
     private static final String BOT_USER_NAME = "BlackDotsBot";
 
@@ -35,6 +40,18 @@ public class AbilityExamplesBot extends AbilityBot {
     @Override
     public int creatorId() {
         return creatorId;
+    }
+
+    /**
+     * A reply to text
+     */
+    public Reply blackDotsFromText() {
+        VideoAction action = new VideoAction(sender);
+        return Reply.of(action, Flag.TEXT);
+    }
+
+    public AbilityExtension testAbilityExtension() {
+        return new TestAbilityExtension(silent);
     }
 
     public Ability sayHelloWorld() {
@@ -68,16 +85,15 @@ public class AbilityExamplesBot extends AbilityBot {
             // The reason of that is that a reply can be so versatile depending on the message, context becomes an inefficient wrapping
             .reply(upd -> {
                     // Prints to console
-                    System.out.println("I'm in a reply!");
+                    LOG.info("I'm in a reply!");
                     // Sends message
                     silent.send("It's been nice playing with you!", upd.getMessage().getChatId());
                 },
                 // Now we start declaring conditions, MESSAGE is a member of the enum Flag class
                 // That class contains out-of-the-box predicates for your replies!
                 // MESSAGE means that the update must have a message
-                // This is imported statically, Flag.MESSAGE
                 Flag.MESSAGE,
-                // REPLY means that the update must be a reply, Flag.REPLY
+                // REPLY means that the update must be a reply
                 Flag.REPLY,
                 // A new predicate user-defined
                 // The reply must be to the bot

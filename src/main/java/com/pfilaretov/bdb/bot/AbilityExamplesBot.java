@@ -17,8 +17,10 @@ import org.telegram.abilitybots.api.objects.Flag;
 import org.telegram.abilitybots.api.objects.Reply;
 import org.telegram.abilitybots.api.objects.ReplyFlow;
 import org.telegram.abilitybots.api.util.AbilityExtension;
+import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
  * Abilities examples
@@ -125,6 +127,23 @@ public class AbilityExamplesBot extends AbilityBot {
         Consumer<Update> action = upd -> silent.send("Yuck", getChatId(upd));
 
         return Reply.of(action, Flag.PHOTO);
+    }
+
+    public Reply replyWithVideoOnVideo() {
+        Consumer<Update> action = update -> {
+            String fileId = update.getMessage().getVideo().getFileId();
+            SendVideo message = new SendVideo()
+                .setChatId(update.getMessage().getChatId())
+                .setVideo(fileId);
+
+            try {
+                sender.sendVideo(message);
+            } catch (TelegramApiException e) {
+                LOG.error("Cannot send video", e);
+            }
+        };
+
+        return Reply.of(action, update -> update.hasMessage() && update.getMessage().hasVideo());
     }
 
     public ReplyFlow directMe() {

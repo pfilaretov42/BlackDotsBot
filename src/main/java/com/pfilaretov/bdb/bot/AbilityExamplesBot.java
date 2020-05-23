@@ -25,11 +25,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 /**
  * Abilities examples
  */
-@Component
+//@Component
 public class AbilityExamplesBot extends AbilityBot {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbilityExamplesBot.class);
-
     private static final String BOT_USER_NAME = "BlackDotsBot";
 
     @Value("${BLACK_DOTS_BOT_CREATOR_ID}")
@@ -42,14 +41,6 @@ public class AbilityExamplesBot extends AbilityBot {
     @Override
     public int creatorId() {
         return creatorId;
-    }
-
-    /**
-     * A reply to text
-     */
-    public Reply blackDotsFromText() {
-        VideoAction action = new VideoAction(sender);
-        return Reply.of(action, Flag.TEXT);
     }
 
     public AbilityExtension testAbilityExtension() {

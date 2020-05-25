@@ -16,11 +16,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Produces a video
  */
 public class VideoMaker {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VideoMaker.class);
 
     private static final String BACKGROUND_PATH = "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/img/video-background-2.jpg";
     private static final String C1_AUDIO_PATH = "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/C1.mp3";
@@ -32,6 +36,9 @@ public class VideoMaker {
 
 
     public File generateVideo(List<Note> notes) {
+        LOG.info("Got notes to generate a video: {}", notes);
+
+
         // C1
         IContainer c1AudioContainer = IContainer.make();
 

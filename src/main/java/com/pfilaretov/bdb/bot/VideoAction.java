@@ -39,6 +39,8 @@ public class VideoAction implements Consumer<Update> {
             return;
         }
 
+        // TODO - send "Please wait..."? Too many requests in a second Telegram API restriction?
+
         List<Note> notes = notesParser.parse(text);
         File file = videoMaker.generateVideo(notes);
 
@@ -48,10 +50,16 @@ public class VideoAction implements Consumer<Update> {
 
         try {
             sender.sendVideo(video);
-
-            // TODO - delete file
         } catch (TelegramApiException e) {
             LOG.error("Cannot send video", e);
+        } finally {
+            deleteFile(file);
+        }
+    }
+
+    private void deleteFile(File file) {
+        if (!file.delete()) {
+            LOG.warn("Cannot delete file {}", file.getName());
         }
     }
 }

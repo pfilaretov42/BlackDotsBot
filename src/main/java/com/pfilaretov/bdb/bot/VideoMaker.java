@@ -12,7 +12,9 @@ import com.xuggle.xuggler.IStreamCoder;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
@@ -26,108 +28,32 @@ public class VideoMaker {
 
     private static final Logger LOG = LoggerFactory.getLogger(VideoMaker.class);
 
+    // TODO - make paths relative
     private static final String BACKGROUND_PATH = "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/img/video-background-2.jpg";
-    private static final String C1_AUDIO_PATH = "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/C1.mp3";
-    private static final String D1_AUDIO_PATH = "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/D1.mp3";
-    private static final String E1_AUDIO_PATH = "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/E1.mp3";
 
     // assume the number of packets in each audio
+    // TODO - adjust this once all the audio is recorded - min value of all mp3 packets
     private static final int PACKETS_COUNT = 99;
 
+    private final Map<String, String> notePaths;
+
+    public VideoMaker() {
+        notePaths = new HashMap<>(12);
+        // TODO - make paths relative
+        notePaths.put(Note.C1, "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/c1.mp3");
+        notePaths.put(Note.D1, "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/d1.mp3");
+        notePaths.put(Note.E1, "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/e1.mp3");
+    }
 
     public File generateVideo(List<Note> notes) {
         LOG.info("Got notes to generate a video: {}", notes);
-
-
-        // C1
-        IContainer c1AudioContainer = IContainer.make();
-
-        // check files are readable
-        if (c1AudioContainer.open(C1_AUDIO_PATH, IContainer.Type.READ, null) < 0) {
-            throw new IllegalArgumentException("Cannot find " + C1_AUDIO_PATH);
-        }
-        // read audio file and create stream
-        IStreamCoder c1AudioCoder = null;
-        int c1AudioStreamIndex = 0;
-        for (int i = 0; i < c1AudioContainer.getNumStreams(); i++) {
-            IStream stream = c1AudioContainer.getStream(i);
-            IStreamCoder coder = stream.getStreamCoder();
-
-            if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
-                c1AudioCoder = coder;
-                c1AudioStreamIndex = i;
-            }
-        }
-
-        if (c1AudioCoder == null) {
-            throw new IllegalArgumentException("Cannot find audio stream for " + C1_AUDIO_PATH);
-        }
-
-        if (c1AudioCoder.open(null, null) < 0) {
-            throw new IllegalArgumentException("Cannot open audio coder for " + C1_AUDIO_PATH);
-        }
-
-        // D1
-        IContainer d1AudioContainer = IContainer.make();
-
-        // check files are readable
-        if (d1AudioContainer.open(D1_AUDIO_PATH, IContainer.Type.READ, null) < 0) {
-            throw new IllegalArgumentException("Cannot find " + D1_AUDIO_PATH);
-        }
-        // read audio file and create stream
-        IStreamCoder d1AudioCoder = null;
-        int d1AudioStreamIndex = 0;
-        for (int i = 0; i < d1AudioContainer.getNumStreams(); i++) {
-            IStream stream = d1AudioContainer.getStream(i);
-            IStreamCoder coder = stream.getStreamCoder();
-
-            if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
-                d1AudioCoder = coder;
-                d1AudioStreamIndex = i;
-            }
-        }
-
-        if (d1AudioCoder == null) {
-            throw new IllegalArgumentException("Cannot find audio stream for " + D1_AUDIO_PATH);
-        }
-
-        if (d1AudioCoder.open(null, null) < 0) {
-            throw new IllegalArgumentException("Cannot open audio coder for " + D1_AUDIO_PATH);
-        }
-
-        // E1
-        IContainer e1AudioContainer = IContainer.make();
-
-        // check files are readable
-        if (e1AudioContainer.open(E1_AUDIO_PATH, IContainer.Type.READ, null) < 0) {
-            throw new IllegalArgumentException("Cannot find " + E1_AUDIO_PATH);
-        }
-        // read audio file and create stream
-        IStreamCoder e1AudioCoder = null;
-        int e1AudioStreamIndex = 0;
-        for (int i = 0; i < e1AudioContainer.getNumStreams(); i++) {
-            IStream stream = e1AudioContainer.getStream(i);
-            IStreamCoder coder = stream.getStreamCoder();
-
-            if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
-                e1AudioCoder = coder;
-                e1AudioStreamIndex = i;
-            }
-        }
-
-        if (e1AudioCoder == null) {
-            throw new IllegalArgumentException("Cannot find audio stream for " + E1_AUDIO_PATH);
-        }
-
-        if (e1AudioCoder.open(null, null) < 0) {
-            throw new IllegalArgumentException("Cannot open audio coder for " + E1_AUDIO_PATH);
-        }
 
         // make a IMediaWriter to write the file.
         String resultFileName = getResultFileName();
         final IMediaWriter writer = ToolFactory.makeWriter(resultFileName);
 
         // take the background image and convert to the right image type
+        // TODO - can we make it a class field?
         BufferedImage backgroundImage = getBackgroundImage();
         backgroundImage = convertToType(backgroundImage, BufferedImage.TYPE_3BYTE_BGR);
 
@@ -144,39 +70,48 @@ public class VideoMaker {
         // TODO - audioStreamId is the same as videoStreamId???
         int audioStreamId = 0;
         int channelCount = 1; //c1AudioCoder.getChannels()
-        int sampleRate = c1AudioCoder.getSampleRate();
-        int audioStreamIndex = writer.addAudioStream(audioInputIndex, audioStreamId, channelCount, sampleRate);
+        // TODO - adjust this?
+        int sampleRate = 32000; //c1AudioCoder.getSampleRate();
+        int videoAudioStreamIndex = writer.addAudioStream(audioInputIndex, audioStreamId, channelCount, sampleRate);
 
         long startTime = System.nanoTime();
 
-        // c1.4
-        play(c1AudioContainer, c1AudioCoder, c1AudioStreamIndex, writer, videoStreamIndex, audioStreamIndex,
-            backgroundImage, startTime, 4);
+        for (Note note : notes) {
+            String audioFilePath = notePaths.get(note.getHeight());
 
-        // d1.8 x2
-        play(d1AudioContainer, d1AudioCoder, d1AudioStreamIndex, writer, videoStreamIndex, audioStreamIndex,
-            backgroundImage, startTime, 8);
-        play(d1AudioContainer, d1AudioCoder, d1AudioStreamIndex, writer, videoStreamIndex, audioStreamIndex,
-            backgroundImage, startTime, 8);
+            // TODO - is it fine to open several containers from the same file concurrently?
+            IContainer audioContainer = IContainer.make();
+            if (audioContainer.open(audioFilePath, IContainer.Type.READ, null) < 0) {
+                throw new IllegalArgumentException("Cannot find " + audioFilePath);
+            }
 
-        // e1.16 x4
-        play(e1AudioContainer, e1AudioCoder, e1AudioStreamIndex, writer, videoStreamIndex, audioStreamIndex,
-            backgroundImage, startTime, 16);
-        play(e1AudioContainer, e1AudioCoder, e1AudioStreamIndex, writer, videoStreamIndex, audioStreamIndex,
-            backgroundImage, startTime, 16);
-        play(e1AudioContainer, e1AudioCoder, e1AudioStreamIndex, writer, videoStreamIndex, audioStreamIndex,
-            backgroundImage, startTime, 16);
-        play(e1AudioContainer, e1AudioCoder, e1AudioStreamIndex, writer, videoStreamIndex, audioStreamIndex,
-            backgroundImage, startTime, 16);
+            // read audio file and create stream
+            IStreamCoder audioCoder = null;
+            int audioStreamIndex = 0;
+            for (int i = 0; i < audioContainer.getNumStreams(); i++) {
+                IStream stream = audioContainer.getStream(i);
+                IStreamCoder coder = stream.getStreamCoder();
 
-        c1AudioCoder.close();
-        c1AudioContainer.close();
+                if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
+                    audioCoder = coder;
+                    audioStreamIndex = i;
+                }
+            }
 
-        d1AudioCoder.close();
-        d1AudioContainer.close();
+            if (audioCoder == null) {
+                throw new IllegalArgumentException("Cannot find audio stream for " + audioFilePath);
+            }
+            if (audioCoder.open(null, null) < 0) {
+                throw new IllegalArgumentException("Cannot open audio coder for " + audioFilePath);
+            }
 
-        e1AudioCoder.close();
-        e1AudioContainer.close();
+            addNote(audioContainer, audioCoder, audioStreamIndex, writer, videoStreamIndex, videoAudioStreamIndex,
+                backgroundImage, startTime, note.getDuration());
+
+            // TODO - do not close them for each iteration, reuse
+            audioCoder.close();
+            audioContainer.close();
+        }
 
         // tell the writer to close and write the trailer if needed
         writer.close();
@@ -188,7 +123,7 @@ public class VideoMaker {
         return UUID.randomUUID().toString() + ".mp4";
     }
 
-    private void play(IContainer audioContainer, IStreamCoder audioCoder, int audioStreamIndex,
+    private void addNote(IContainer audioContainer, IStreamCoder audioCoder, int audioStreamIndex,
         IMediaWriter writer, int videoStreamIndex, int videoAudioStreamIndex, BufferedImage backgroundImage,
         long startTime, int duration) {
         // scroll to the beginning of the audio file

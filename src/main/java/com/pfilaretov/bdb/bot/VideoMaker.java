@@ -27,9 +27,7 @@ import org.slf4j.LoggerFactory;
 public class VideoMaker {
 
     private static final Logger LOG = LoggerFactory.getLogger(VideoMaker.class);
-
-    // TODO - make paths relative
-    private static final String BACKGROUND_PATH = "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/img/video-background-2.jpg";
+    private static final String BACKGROUND_PATH = "media/img/video-background-2.jpg";
 
     // assume the number of packets in each audio
     // TODO - adjust this once all the audio is recorded - min value of all mp3 packets
@@ -39,10 +37,9 @@ public class VideoMaker {
 
     public VideoMaker() {
         notePaths = new HashMap<>(12);
-        // TODO - make paths relative
-        notePaths.put(Note.C1, "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/c1.mp3");
-        notePaths.put(Note.D1, "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/d1.mp3");
-        notePaths.put(Note.E1, "C:/Users/Petr_Filaretov/IdeaProjects/XugglerTest/media/audio/e1.mp3");
+        notePaths.put(Note.C1, "media/audio/c1.mp3");
+        notePaths.put(Note.D1, "media/audio/d1.mp3");
+        notePaths.put(Note.E1, "media/audio/e1.mp3");
     }
 
     public File generateVideo(List<Note> notes) {
@@ -80,6 +77,7 @@ public class VideoMaker {
         int videoAudioStreamIndex = writer.addAudioStream(audioInputIndex, audioStreamId, channelCount, sampleRate);
 
         long startTime = System.nanoTime();
+        IPacket packet = IPacket.make();
 
         Map<String, AudioObjects> noteObjects = new HashMap<>();
         for (Note note : notes) {
@@ -128,8 +126,8 @@ public class VideoMaker {
                 audioStreamIndex = audioObjects.getAudioStreamIndex();
             }
 
-            addNote(audioContainer, audioCoder, audioStreamIndex, writer, videoStreamIndex, videoAudioStreamIndex,
-                backgroundImage, startTime, note.getDuration());
+            addNote(audioContainer, audioCoder, audioStreamIndex, packet, writer, videoStreamIndex,
+                videoAudioStreamIndex, backgroundImage, startTime, note.getDuration());
         }
 
         // close everything
@@ -148,7 +146,7 @@ public class VideoMaker {
         return UUID.randomUUID().toString() + ".mp4";
     }
 
-    private void addNote(IContainer audioContainer, IStreamCoder audioCoder, int audioStreamIndex,
+    private void addNote(IContainer audioContainer, IStreamCoder audioCoder, int audioStreamIndex, IPacket packet,
         IMediaWriter writer, int videoStreamIndex, int videoAudioStreamIndex, BufferedImage backgroundImage,
         long startTime, int duration) {
         // scroll to the beginning of the audio file
@@ -158,9 +156,6 @@ public class VideoMaker {
             // TODO - return an error
             throw new RuntimeException("Cannot seek key frame");
         }
-
-        // TODO - pass as a parameter to save some memory?
-        IPacket packet = IPacket.make();
 
         int iteration = 0;
         while (audioContainer.readNextPacket(packet) >= 0 && iteration != PACKETS_COUNT / duration) {

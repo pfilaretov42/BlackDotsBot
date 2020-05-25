@@ -46,7 +46,11 @@ public class VideoMaker {
     }
 
     public File generateVideo(List<Note> notes) {
-        LOG.info("Got notes to generate a video: {}", notes);
+        LOG.debug("Got notes to generate a video: {}", notes);
+        if (notes == null || notes.isEmpty()) {
+            // TODO - return an error
+            throw new IllegalArgumentException("notes cannot be empty");
+        }
 
         // make a IMediaWriter to write the file.
         String resultFileName = getResultFileName();
@@ -62,9 +66,10 @@ public class VideoMaker {
         int videoInputIndex = 0;
         int videoStreamId = 0;
         // these are min values that works for background image, magic numbers...
-        int width = 750;
-        int height = 468;
-        int videoStreamIndex = writer.addVideoStream(videoInputIndex, videoStreamId, ID.CODEC_ID_MPEG4, width, height);
+        int videoWidth = 750;
+        int videoHeight = 468;
+        int videoStreamIndex = writer
+            .addVideoStream(videoInputIndex, videoStreamId, ID.CODEC_ID_MPEG4, videoWidth, videoHeight);
 
         int audioInputIndex = 1;
         // TODO - audioStreamId is the same as videoStreamId???
@@ -76,42 +81,62 @@ public class VideoMaker {
 
         long startTime = System.nanoTime();
 
+        Map<String, AudioObjects> noteObjects = new HashMap<>();
         for (Note note : notes) {
-            String audioFilePath = notePaths.get(note.getHeight());
+            String noteHeight = note.getHeight();
+            String audioFilePath = notePaths.get(noteHeight);
 
-            // TODO - is it fine to open several containers from the same file concurrently?
-            IContainer audioContainer = IContainer.make();
-            if (audioContainer.open(audioFilePath, IContainer.Type.READ, null) < 0) {
-                throw new IllegalArgumentException("Cannot find " + audioFilePath);
-            }
+            IContainer audioContainer;
+            IStreamCoder audioCoder;
+            int audioStreamIndex;
 
-            // read audio file and create stream
-            IStreamCoder audioCoder = null;
-            int audioStreamIndex = 0;
-            for (int i = 0; i < audioContainer.getNumStreams(); i++) {
-                IStream stream = audioContainer.getStream(i);
-                IStreamCoder coder = stream.getStreamCoder();
-
-                if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
-                    audioCoder = coder;
-                    audioStreamIndex = i;
+            AudioObjects audioObjects = noteObjects.get(noteHeight);
+            if (audioObjects == null) {
+                // TODO - is it fine to open several containers from the same file concurrently?
+                audioContainer = IContainer.make();
+                if (audioContainer.open(audioFilePath, IContainer.Type.READ, null) < 0) {
+                    // TODO - return an error
+                    throw new IllegalStateException("Cannot find " + audioFilePath);
                 }
-            }
 
-            if (audioCoder == null) {
-                throw new IllegalArgumentException("Cannot find audio stream for " + audioFilePath);
-            }
-            if (audioCoder.open(null, null) < 0) {
-                throw new IllegalArgumentException("Cannot open audio coder for " + audioFilePath);
+                // read audio file and create stream
+                audioCoder = null;
+                audioStreamIndex = 0;
+                for (int i = 0; i < audioContainer.getNumStreams(); i++) {
+                    IStream stream = audioContainer.getStream(i);
+                    IStreamCoder coder = stream.getStreamCoder();
+
+                    if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
+                        audioCoder = coder;
+                        audioStreamIndex = i;
+                    }
+                }
+
+                if (audioCoder == null) {
+                    // TODO - return an error
+                    throw new IllegalStateException("Cannot find audio stream for " + audioFilePath);
+                }
+                if (audioCoder.open(null, null) < 0) {
+                    // TODO - return an error
+                    throw new IllegalStateException("Cannot open audio coder for " + audioFilePath);
+                }
+
+                noteObjects.put(noteHeight, new AudioObjects(audioContainer, audioCoder, audioStreamIndex));
+            } else {
+                audioContainer = audioObjects.getAudioContainer();
+                audioCoder = audioObjects.getAudioCoder();
+                audioStreamIndex = audioObjects.getAudioStreamIndex();
             }
 
             addNote(audioContainer, audioCoder, audioStreamIndex, writer, videoStreamIndex, videoAudioStreamIndex,
                 backgroundImage, startTime, note.getDuration());
-
-            // TODO - do not close them for each iteration, reuse
-            audioCoder.close();
-            audioContainer.close();
         }
+
+        // close everything
+        noteObjects.values().forEach(audioObject -> {
+            audioObject.getAudioCoder().close();
+            audioObject.getAudioContainer().close();
+        });
 
         // tell the writer to close and write the trailer if needed
         writer.close();
@@ -130,6 +155,7 @@ public class VideoMaker {
         int seekFrameResult = audioContainer
             .seekKeyFrame(audioStreamIndex, audioContainer.getStartTime(), IContainer.SEEK_FLAG_ANY);
         if (seekFrameResult < 0) {
+            // TODO - return an error
             throw new RuntimeException("Cannot seek key frame");
         }
 
@@ -171,7 +197,8 @@ public class VideoMaker {
         try {
             return ImageIO.read(new File(BACKGROUND_PATH));
         } catch (IOException e) {
-            throw new IllegalArgumentException("Cannot read image by path: " + BACKGROUND_PATH, e);
+            // TODO - return an error
+            throw new IllegalStateException("Cannot read image by path: " + BACKGROUND_PATH, e);
         }
 
     }

@@ -3,5 +3,6 @@
 **/target/
 backup.json
 BlackDotsBot
+**/media/audio/src/
 *.m4a
 *.mp4

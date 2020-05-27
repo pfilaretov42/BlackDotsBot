@@ -59,7 +59,7 @@ public class NotesParser {
     }
 
     private boolean isValidNote(String height) {
-        return Note.NOTES_SUPPORTED.contains(height);
+        return Note.NOTES_SUPPORTED.containsKey(height);
     }
 
     private boolean isValidDuration(byte duration) {

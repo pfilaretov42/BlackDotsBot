@@ -30,17 +30,9 @@ public class VideoMaker {
     private static final String BACKGROUND_PATH = "media/img/video-background-2.jpg";
 
     // assume the number of packets in each audio
+    // changing this, we can change each duration (1/2, 1/4, 1/8, ...) in ms
     // TODO - adjust this once all the audio is recorded - min value of all mp3 packets
-    private static final int PACKETS_COUNT = 99;
-
-    private final Map<String, String> notePaths;
-
-    public VideoMaker() {
-        notePaths = new HashMap<>(12);
-        notePaths.put(Note.C1, "media/audio/c1.mp3");
-        notePaths.put(Note.D1, "media/audio/d1.mp3");
-        notePaths.put(Note.E1, "media/audio/e1.mp3");
-    }
+    private static final int PACKETS_COUNT = 132;
 
     public File generateVideo(List<Note> notes) {
         LOG.debug("Got notes to generate a video: {}", notes);
@@ -82,7 +74,7 @@ public class VideoMaker {
         Map<String, AudioObjects> noteObjects = new HashMap<>();
         for (Note note : notes) {
             String noteHeight = note.getHeight();
-            String audioFilePath = notePaths.get(noteHeight);
+            String audioFilePath = Note.NOTES_SUPPORTED.get(noteHeight);
 
             IContainer audioContainer;
             IStreamCoder audioCoder;

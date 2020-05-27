@@ -45,7 +45,7 @@ public class BlackDotsAbility extends AbilityBot {
             + "[note name].[note duration], for instance:\n"
             // TODO - give Bach D-minior here
             + "c1.4 d1.8 e1.8 c1.4\n"
-            + "Supported note names: " + String.join(", ", Note.NOTES_SUPPORTED) + ".\n"
+            + "Supported note names: " + String.join(", ", Note.NOTES_SUPPORTED.keySet()) + ".\n"
             + "Supported note durations: "
             + Note.DURATIONS_SUPPORTED.stream()
                 .map(String::valueOf)

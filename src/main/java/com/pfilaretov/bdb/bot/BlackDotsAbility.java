@@ -21,6 +21,19 @@ public class BlackDotsAbility extends AbilityBot {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlackDotsAbility.class);
     private static final String BOT_USER_NAME = "BlackDotsBot";
+    public static final String USAGE_MESSAGE = "I can create a music video out of a simple text. "
+        + "Just send me a message with a space delimited list of notes in a format of "
+        + "[note name].[note duration], for instance:\n"
+        // TODO - give Bach D-minior here
+        + "c4.4 d4.8 e4.8 c4.4\n"
+        + "Supported note names: " + String.join(", ", Note.NOTES_SUPPORTED.keySet()) + ".\n"
+        + "Supported note durations: "
+        // TODO - provide an explanation, e.g. 1 - whole, 2 - half, etc
+        + Note.DURATIONS_SUPPORTED.stream()
+        .map(String::valueOf)
+        .collect(Collectors.joining(", "))
+        + ".";
+
 
     @Value("${BLACK_DOTS_BOT_CREATOR_ID}")
     private int creatorId;
@@ -40,18 +53,6 @@ public class BlackDotsAbility extends AbilityBot {
      * Prints usage information on /start command
      */
     public Ability printUsage() {
-        String usageMessage = "I can create a music video out of a simple text. "
-            + "Just send me a message with a space delimited list of notes in a format of "
-            + "[note name].[note duration], for instance:\n"
-            // TODO - give Bach D-minior here
-            + "c1.4 d1.8 e1.8 c1.4\n"
-            + "Supported note names: " + String.join(", ", Note.NOTES_SUPPORTED.keySet()) + ".\n"
-            + "Supported note durations: "
-            + Note.DURATIONS_SUPPORTED.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(", "))
-            + ".";
-
         return Ability
             .builder()
             .name("start")
@@ -59,7 +60,7 @@ public class BlackDotsAbility extends AbilityBot {
             .input(0)
             .locality(ALL)
             .privacy(PUBLIC)
-            .action(ctx -> silent.send(usageMessage, ctx.chatId()))
+            .action(ctx -> silent.send(USAGE_MESSAGE, ctx.chatId()))
             .build();
     }
 
@@ -71,7 +72,7 @@ public class BlackDotsAbility extends AbilityBot {
         NotesParser notesParser = new NotesParser();
         VideoMaker videoMaker = new VideoMaker();
 
-        VideoAction action = new VideoAction(sender, notesParser, videoMaker);
+        VideoAction action = new VideoAction(silent, sender, notesParser, videoMaker);
         return Reply.of(action, update ->
             Flag.MESSAGE.test(update) && update.getMessage().hasText()
                 && !update.getMessage().getText().startsWith("/"));

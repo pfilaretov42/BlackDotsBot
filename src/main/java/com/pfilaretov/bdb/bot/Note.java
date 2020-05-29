@@ -11,18 +11,18 @@ import java.util.Set;
 public class Note {
     // TODO - convert to enum?
 
-    public static final String C1 = "c1";
-    public static final String C_SHARP_1 = "c#1";
-    public static final String D1 = "d1";
-    public static final String D_SHARP_1 = "d#1";
-    public static final String E1 = "e1";
-    public static final String F1 = "f1";
-    public static final String F_SHARP_1 = "f#1";
-    public static final String G1 = "g1";
-    public static final String G_SHARP_1 = "g#1";
-    public static final String A1 = "a1";
-    public static final String A_SHARP_1 = "a#1";
-    public static final String H1 = "h1";
+    public static final String C4 = "c4";
+    public static final String C_SHARP_4 = "c#4";
+    public static final String D4 = "d4";
+    public static final String D_SHARP_4 = "d#4";
+    public static final String E4 = "e4";
+    public static final String F4 = "f4";
+    public static final String F_SHARP_4 = "f#4";
+    public static final String G4 = "g4";
+    public static final String G_SHARP_4 = "g#4";
+    public static final String A4 = "a4";
+    public static final String A_SHARP_4 = "a#4";
+    public static final String B4 = "b4";
 
     public static final byte WHOLE = 1;
     public static final byte HALF = 2;
@@ -41,18 +41,18 @@ public class Note {
         // TODO - add more notes
         // using LinkedHashMap to guarantee the order, these lists are used in usage info. Can we make it a better way?
         NOTES_SUPPORTED = new LinkedHashMap<>();
-        NOTES_SUPPORTED.put(C1, "media/audio/c1.mp3");
-        NOTES_SUPPORTED.put(C_SHARP_1, "media/audio/c#1.mp3");
-        NOTES_SUPPORTED.put(D1, "media/audio/d1.mp3");
-        NOTES_SUPPORTED.put(D_SHARP_1, "media/audio/d#1.mp3");
-        NOTES_SUPPORTED.put(E1, "media/audio/e1.mp3");
-        NOTES_SUPPORTED.put(F1, "media/audio/f1.mp3");
-        NOTES_SUPPORTED.put(F_SHARP_1, "media/audio/f#1.mp3");
-        NOTES_SUPPORTED.put(G1, "media/audio/g1.mp3");
-        NOTES_SUPPORTED.put(G_SHARP_1, "media/audio/g#1.mp3");
-        NOTES_SUPPORTED.put(A1, "media/audio/a1.mp3");
-        NOTES_SUPPORTED.put(A_SHARP_1, "media/audio/a#1.mp3");
-        NOTES_SUPPORTED.put(H1, "media/audio/h1.mp3");
+        NOTES_SUPPORTED.put(C4, "media/audio/c4.mp3");
+        NOTES_SUPPORTED.put(C_SHARP_4, "media/audio/c#4.mp3");
+        NOTES_SUPPORTED.put(D4, "media/audio/d4.mp3");
+        NOTES_SUPPORTED.put(D_SHARP_4, "media/audio/d#4.mp3");
+        NOTES_SUPPORTED.put(E4, "media/audio/e4.mp3");
+        NOTES_SUPPORTED.put(F4, "media/audio/f4.mp3");
+        NOTES_SUPPORTED.put(F_SHARP_4, "media/audio/f#4.mp3");
+        NOTES_SUPPORTED.put(G4, "media/audio/g4.mp3");
+        NOTES_SUPPORTED.put(G_SHARP_4, "media/audio/g#4.mp3");
+        NOTES_SUPPORTED.put(A4, "media/audio/a4.mp3");
+        NOTES_SUPPORTED.put(A_SHARP_4, "media/audio/a#4.mp3");
+        NOTES_SUPPORTED.put(B4, "media/audio/b4.mp3");
 
         DURATIONS_SUPPORTED = new LinkedHashSet<>();
         DURATIONS_SUPPORTED.add(WHOLE);

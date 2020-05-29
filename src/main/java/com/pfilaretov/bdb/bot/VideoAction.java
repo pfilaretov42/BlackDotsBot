@@ -1,11 +1,13 @@
 package com.pfilaretov.bdb.bot;
 
+import com.pfilaretov.bdb.exception.NoteParseException;
 import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.abilitybots.api.sender.MessageSender;
+import org.telegram.abilitybots.api.sender.SilentSender;
 import org.telegram.abilitybots.api.util.AbilityUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
@@ -19,11 +21,14 @@ public class VideoAction implements Consumer<Update> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VideoAction.class);
 
+    private final SilentSender silent;
     private final MessageSender sender;
     private final NotesParser notesParser;
     private final VideoMaker videoMaker;
 
-    VideoAction(MessageSender sender, NotesParser notesParser, VideoMaker videoMaker) {
+    VideoAction(SilentSender silent, MessageSender sender, NotesParser notesParser,
+        VideoMaker videoMaker) {
+        this.silent = silent;
         this.sender = sender;
         this.notesParser = notesParser;
         this.videoMaker = videoMaker;
@@ -31,10 +36,12 @@ public class VideoAction implements Consumer<Update> {
 
     @Override
     public void accept(Update update) {
-        String text = update.getMessage().getText();
         File file = null;
+        Long chatId = AbilityUtils.getChatId(update);
+        String text = update.getMessage().getText();
+
         try {
-            Long chatId = AbilityUtils.getChatId(update);
+            List<Note> notes = notesParser.parse(text);
 
             // TODO - Too many requests in a second Telegram API restriction?
             /// generating a video can take time, so send a confirmation message first
@@ -43,8 +50,6 @@ public class VideoAction implements Consumer<Update> {
                 .setText("Give me a second...");
             sender.execute(message);
 
-            // generate and send a video
-            List<Note> notes = notesParser.parse(text);
             file = videoMaker.generateVideo(notes);
 
             SendVideo video = new SendVideo();
@@ -52,6 +57,8 @@ public class VideoAction implements Consumer<Update> {
             video.setVideo(file);
 
             sender.sendVideo(video);
+        } catch (NoteParseException e) {
+            silent.send(e.getMessage() + "\n" + BlackDotsAbility.USAGE_MESSAGE, chatId);
         } catch (TelegramApiException e) {
             LOG.error("Cannot send video", e);
         } finally {

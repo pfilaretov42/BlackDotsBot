@@ -1,7 +1,7 @@
 package com.pfilaretov.bdb.bot;
 
+import com.pfilaretov.bdb.exception.NoteParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,43 +13,30 @@ public class NotesParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotesParser.class);
 
-    public List<Note> parse(String text) {
+    public List<Note> parse(String text) throws NoteParseException {
         String[] notes = text.split("\\s");
-        LOG.debug("got text splitted: {}", Arrays.toString(notes));
-
         List<Note> result = new ArrayList<>();
 
         for (String note : notes) {
             String[] noteAndDuration = note.split("\\.");
-            LOG.debug("note splitted: {}", Arrays.toString(noteAndDuration));
-
             if (noteAndDuration.length != 2) {
-                // TODO - return error, print help
-                LOG.warn("wrong note format: {}", noteAndDuration);
-                continue;
+                throw new NoteParseException("Wrong note format: " + note);
             }
 
             String height = noteAndDuration[0].toLowerCase();
-
             if (!isValidNote(height)) {
-                // TODO - return error, print help
-                LOG.warn("note {} is invalid", height);
-                continue;
+                throw new NoteParseException("'" + height + "' note is not supported.");
             }
 
             byte duration;
             try {
                 duration = Byte.parseByte(noteAndDuration[1]);
             } catch (NumberFormatException e) {
-                // TODO - return error, print help
-                LOG.warn("cannot parse note duration: {}", noteAndDuration[1]);
-                continue;
+                throw new NoteParseException("Cannot parse note duration: " + noteAndDuration[1]);
             }
 
             if (!isValidDuration(duration)) {
-                // TODO - return error, print help
-                LOG.warn("{} duration is not supported", duration);
-                continue;
+                throw new NoteParseException("'" + duration + "' duration is not supported.");
             }
 
             result.add(new Note(height, duration));

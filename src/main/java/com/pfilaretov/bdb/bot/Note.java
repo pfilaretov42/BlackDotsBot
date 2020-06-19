@@ -1,9 +1,7 @@
 package com.pfilaretov.bdb.bot;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * represents a note
@@ -24,14 +22,7 @@ public class Note {
     public static final String A_SHARP_4 = "a#4";
     public static final String B4 = "b4";
 
-    public static final byte WHOLE = 1;
-    public static final byte HALF = 2;
-    public static final byte QUARTER = 4;
-    public static final byte EIGHTH = 8;
-    public static final byte SIXTEENTH = 16;
-
     public static final Map<String, String> NOTES_SUPPORTED;
-    public static final Set<Byte> DURATIONS_SUPPORTED;
 
     static {
         // TODO - double-flat/sharp, natural, ...
@@ -53,15 +44,7 @@ public class Note {
         NOTES_SUPPORTED.put(A4, "media/audio/a4.mp3");
         NOTES_SUPPORTED.put(A_SHARP_4, "media/audio/a#4.mp3");
         NOTES_SUPPORTED.put(B4, "media/audio/b4.mp3");
-
-        DURATIONS_SUPPORTED = new LinkedHashSet<>();
-        DURATIONS_SUPPORTED.add(WHOLE);
-        DURATIONS_SUPPORTED.add(HALF);
-        DURATIONS_SUPPORTED.add(QUARTER);
-        DURATIONS_SUPPORTED.add(EIGHTH);
-        DURATIONS_SUPPORTED.add(SIXTEENTH);
     }
-
 
     private final String height;
     private final byte duration;

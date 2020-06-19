@@ -3,7 +3,6 @@ package com.pfilaretov.bdb.bot;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,18 +20,23 @@ public class BlackDotsAbility extends AbilityBot {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlackDotsAbility.class);
     private static final String BOT_USER_NAME = "BlackDotsBot";
-    public static final String USAGE_MESSAGE = "I can create a music video out of a simple text. "
-        + "Just send me a message with a space delimited list of notes in a format of "
-        + "[note name].[note duration], for instance:\n"
-        // TODO - give Bach D-minior here
-        + "c4.4 d4.8 e4.8 c4.4\n"
-        + "Supported note names: " + String.join(", ", Note.NOTES_SUPPORTED.keySet()) + ".\n"
-        + "Supported note durations: "
-        // TODO - provide an explanation, e.g. 1 - whole, 2 - half, etc
-        + Note.DURATIONS_SUPPORTED.stream()
-        .map(String::valueOf)
-        .collect(Collectors.joining(", "))
-        + ".";
+    public static final String USAGE_MESSAGE;
+
+    static {
+        StringBuilder usageMsg = new StringBuilder("I can create a music video out of a simple text. ")
+            .append("Just send me a message with a space delimited list of notes in a format of ")
+            .append("[note name].[note duration], for instance:\n")
+            .append("c4.4 f4.8 g4.8 c4.2\n")
+            .append("Supported note names: ")
+            .append(String.join(", ", Note.NOTES_SUPPORTED.keySet())).append(".\n")
+            .append("Supported note durations:\n");
+
+        for (NoteDuration noteDuration : NoteDuration.values()) {
+            usageMsg.append(noteDuration).append("\n");
+        }
+
+        USAGE_MESSAGE = usageMsg.toString();
+    }
 
 
     @Value("${BLACK_DOTS_BOT_CREATOR_ID}")

@@ -50,6 +50,6 @@ public class NotesParser {
     }
 
     private boolean isValidDuration(byte duration) {
-        return Note.DURATIONS_SUPPORTED.contains(duration);
+        return NoteDuration.isSupported(duration);
     }
 }

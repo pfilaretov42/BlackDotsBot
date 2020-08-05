@@ -3,6 +3,7 @@ package com.pfilaretov.bdb.bot;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
+import com.pfilaretov.bdb.consumer.GameAction;
 import com.pfilaretov.bdb.consumer.VideoAction;
 import com.pfilaretov.bdb.media.VideoMaker;
 import com.pfilaretov.bdb.note.Note;
@@ -85,6 +86,18 @@ public class BlackDotsAbility extends AbilityBot {
         return Reply.of(action, update ->
             Flag.MESSAGE.test(update) && update.getMessage().hasText()
                 && !update.getMessage().getText().startsWith("/"));
+    }
+
+    /**
+     * A game callback
+     */
+    public Reply gameCallback() {
+        GameAction action = new GameAction(silent, sender);
+        return Reply.of(action, update ->
+            Flag.CALLBACK_QUERY.test(update)
+                && update.getCallbackQuery().getGameShortName() != null
+                && !update.getCallbackQuery().getGameShortName().isEmpty()
+        );
     }
 
 }

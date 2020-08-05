@@ -1,4 +1,4 @@
-package com.pfilaretov.bdb.bot;
+package com.pfilaretov.bdb.media;
 
 import com.xuggle.xuggler.IContainer;
 import com.xuggle.xuggler.IStreamCoder;

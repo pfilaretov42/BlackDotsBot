@@ -3,6 +3,11 @@ package com.pfilaretov.bdb.bot;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
+import com.pfilaretov.bdb.consumer.VideoAction;
+import com.pfilaretov.bdb.media.VideoMaker;
+import com.pfilaretov.bdb.note.Note;
+import com.pfilaretov.bdb.note.NoteDuration;
+import com.pfilaretov.bdb.note.NotesParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

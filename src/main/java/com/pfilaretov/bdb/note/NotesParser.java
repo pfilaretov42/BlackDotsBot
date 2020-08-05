@@ -1,4 +1,4 @@
-package com.pfilaretov.bdb.bot;
+package com.pfilaretov.bdb.note;
 
 import com.pfilaretov.bdb.exception.NoteParseException;
 import java.util.ArrayList;

@@ -1,5 +1,9 @@
-package com.pfilaretov.bdb.bot;
+package com.pfilaretov.bdb.consumer;
 
+import com.pfilaretov.bdb.bot.BlackDotsAbility;
+import com.pfilaretov.bdb.note.Note;
+import com.pfilaretov.bdb.note.NotesParser;
+import com.pfilaretov.bdb.media.VideoMaker;
 import com.pfilaretov.bdb.exception.NoteParseException;
 import java.io.File;
 import java.util.List;
@@ -26,7 +30,7 @@ public class VideoAction implements Consumer<Update> {
     private final NotesParser notesParser;
     private final VideoMaker videoMaker;
 
-    VideoAction(SilentSender silent, MessageSender sender, NotesParser notesParser,
+    public VideoAction(SilentSender silent, MessageSender sender, NotesParser notesParser,
         VideoMaker videoMaker) {
         this.silent = silent;
         this.sender = sender;

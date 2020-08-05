@@ -1,4 +1,4 @@
-package com.pfilaretov.bdb.bot;
+package com.pfilaretov.bdb.note;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

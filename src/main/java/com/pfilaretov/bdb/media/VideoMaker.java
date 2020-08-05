@@ -1,5 +1,6 @@
-package com.pfilaretov.bdb.bot;
+package com.pfilaretov.bdb.media;
 
+import com.pfilaretov.bdb.note.Note;
 import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.xuggler.IAudioSamples;

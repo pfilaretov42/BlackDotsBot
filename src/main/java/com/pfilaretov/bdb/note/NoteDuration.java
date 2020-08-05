@@ -1,4 +1,4 @@
-package com.pfilaretov.bdb.bot;
+package com.pfilaretov.bdb.note;
 
 import java.util.HashSet;
 import java.util.Set;

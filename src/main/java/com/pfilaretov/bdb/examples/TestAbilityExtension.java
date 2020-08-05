@@ -1,4 +1,4 @@
-package com.pfilaretov.bdb.bot;
+package com.pfilaretov.bdb.examples;
 
 import java.util.function.Consumer;
 import org.telegram.abilitybots.api.objects.Ability;
